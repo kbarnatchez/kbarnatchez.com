@@ -1,0 +1,10 @@
+name: covid_testing
+title:
+username:
+account: keithbarnatchez
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2259992
+bundleId: 3116734
+url: https://keithbarnatchez.shinyapps.io/covid_testing/
+when: 1588866085.6238
