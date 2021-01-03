@@ -1,0 +1,144 @@
+---
+title: Power and Sample Size
+author: Keith Barnatchez
+date: '2021-01-03'
+slug: power-and-sample-size
+categories:
+  - Clinical trials
+tags:
+  - power
+  - sample size
+  - clinical trials
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-01-03T13:40:50-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+```
+
+Imagine you are part of a team developing a drug meant to reduce the recovery time from pneumonia. To get the drug approved, you not only need to demonstrate that it is *effective*, but also *more effective* than the current standard of care. Let's say the "standard" drug on the market reduces recovery time by 3 days, and you have reason to believe that your drug reduces recovery time by 5 days. To show this, you and your team need to run a trial that estimates your drug's average treatment effect. A natural question is: how likely is the event that your trial demonstrates that your drug is significantly better than the current market drug?
+  
+This concept---the probability of rejecting a null hypothesis in the event that it is false (and under some assumptions about the underlying effect size)---is what we refer to as the statistical **power** of an experiment. All else equal, one experiment is said to be more powerful than another if it is more likely to reject a false null hypothesis. In clinical drug development (for better or for worse) many experiments can't even get off the ground until they have demonstrated sufficient power. The NIH, for instance, only gives out grants to experiments that demonstrate 80% power. In turn, it is common practice for researchers to maximize the power of their experiments under budget contstraints, and there are two main ways to do this: 1) increase the true effect size, typically by increasing doses (this is partly why Stage I trials are so important) and 2) by increasing the sample size of the experiment. 
+
+In this post, we'll derive the relationship between desired power and sample size while holding other aspects (significance thresholds and underlying effect moments) constant.
+
+### Part 1: Calculating the significance threshold
+  
+Imagine that the current standard of care is given by $\mu_0$, and that we want to find the sample size $n$ such that we are able to "reject" the null hypothesis that our treatment is no better than the current standard of care with probability $1-\beta$. What does "reject" mean? In a classical framework, this just means that our experiment yield's a p-value smaller than some predetermined cutoff $\alpha$. Thus, if we were to repeat our experiment many times, a power of $1-\beta$ just means that the share of instances where our resulting p-value is less than $\alpha$ would be $1-\beta$.
+
+You may be wondering how we're able to make any types of probability calculations without knowing the true distribution and moments of our treatment effect. And if so, you're right -- inherent to any power calculation is assumptions about the underlying effect sizes and variability. (blah blah blah)
+
+To impose some structure on this problem, let's assume that our treatment effect $x \sim N(\mu, \sigma^2)$. Now, we can calculte the power of an experiment with sample size $n$ by noting that we will reject our null hypothesis whenever $x$ exceeds some threshold value $t$. That is, 
+$$
+\text{Power}=P(x \geq t | H_A)
+$$
+so as a first step, we need to find $t$, which we know is partly a function of our significance threshold $\alpha$. We can relate $t$ and $\alpha$ by noting that $\alpha$ is the probability of a Type I error, i.e.
+$$
+\alpha = P(x \geq t | H_0)
+$$
+Then we can use some basic algebra and probability to get to a useful expression:
+$$
+  \begin{align}
+\alpha &= 1 - P(x < t | H_0) \\
+&= 1 - P \left( \frac{x-\mu_0}{\sigma_n}  < \frac{t-\mu_0}{\sigma_n} \middle| H_0 \right) \\
+&= 1 - \Phi \left( \frac{t-\mu_0}{\sigma_n} \right) \\
+1-\alpha &= \Phi \left( \frac{t-\mu_0}{\sigma_n} \right)
+\end{align}
+$$
+On the second line, I standardize $x$ and $t$. Since $x$ is normally distributed, its standardized form is standard normal which allows us to use the standard normal CDF function $\Phi$. Note that this tells us that the $1-\alpha$ quantile of $x$ (standardized) is given by $(t-\mu_0)/\sigma_n$. Letting this quantile be denoted by $z_{1-\alpha}$, we have that $z_{1-\alpha}=(t-\mu_0)/\sigma_n$. Thus, 
+$$
+  t = \sigma_n z_{1-\alpha}+\mu_0
+$$
+  
+### Part 2: Calculating power
+  
+From here, we can proceed in a similar fashion to relate $\beta$ to our significance threshold. 
+$$
+  \begin{align}
+1-\beta &= P(x \geq t| H_A) \\
+&= P(x \geq \sigma_n z_{1-\alpha} + \mu_0 | H_A) \\
+&= 1-P(x < \sigma_n z_{1-\alpha} + \mu_0 | H_A) \\
+&=1-P\left(\frac{x-\mu}{\sigma_n} < \frac{\sigma_n z_{1-\alpha} + \mu_0 - \mu}{\sigma_n} \middle| H_A \right) \\
+&= 1 - \Phi \left( \frac{\mu_0 - \mu}{\sigma_n} + z_{1-\alpha} \right) \\
+&= \Phi \left( \frac{\mu_ - \mu_0}{\sigma_n} - z_{1-\alpha} \right)
+\end{align}
+$$
+Similarly, we can infer that 
+$$
+  z_{1-\beta} = \frac{\mu_ - \mu_0}{\sigma_n} - z_{1-\alpha}
+$$
+  
+### Calculating sample size
+From here, it's easy to calculate the sample size by noting $\sigma_n = \sigma/\sqrt{n}$. It follows that
+$$
+\left( \sigma \frac{z_{1-\beta} + z_{1-\alpha}}{\mu-\mu_0} \right) ^ 2 = n
+$$
+
+We can think about this expression practically. As $\sigma$ increases, the measurement of the average treatment effect is noisier, widening our confidence intervals and requiring a larger sample size to make them sufficiently narrow. Similarly, higher "standards" for power and the significance threshold require tighter confidence intervals, which also require a larger sample size. Finally, we can see that as the difference $\mu-\mu_0$ increases---effectively shifting a confidence interval at a given width---it becomes increasingly less likely that the interval will contain 0, in turn giving us some a little leeway with our sample size.
+
+### Simulation example
+
+Let's reinforce our intuition by running a simulation. We'll go back to our original example of the hypothetical drug used for pneumonia recovery, where $\mu_0=3$, and $\mu=5$. Let's assume $\sigma=2$, that we will use a significance threshold of $\alpha=0.01$, and that we want to achieve a power of $1-\beta=0.8$. First, we'll use the formula derived above to calculate our desired sample size:
+
+```{r}
+mu <- 5
+mu0 <- 3
+sigma <- 5
+alpha<- 0.01
+beta <- 0.2
+
+n <- ceiling( ( sigma* (qnorm(1-beta) + qnorm(1-alpha)) / (mu-mu0)    )^2  )
+n
+```
+
+Next, We can write a function to repeatedly simulate data from our hypothetical distribution, and then run our hypothesis test. Effectively, this allows us to repeat our experiment many, many times. After repeating the experiment enough times, the share of cases where our resulting p-value is less than $\alpha$ should approximately equal $1-\beta$.
+```{r}
+run_experiment <- function(mu,sigma,alpha,n,E, mu0) {
+  # Simulates sample of size N from assumed distribution and tests the hypothesis
+  # of mu>mu0. Repeats this procedure E times, storing 0s and 1s in the vector p
+  # indicating whether the resulting p-value was significant.
+  p <- rep(NaN,E)
+  for (e in 1:E) {
+    x <- rnorm(n,mean = mu, sd=sigma)
+    test <- t.test(x-mu0,alternative = "greater")
+    p[e] <- test$p.value
+  }
+  return(p)
+}
+
+E<- 10000 # number of episodes
+
+pvals <- run_experiment(mu,sigma,alpha,n,E,mu0) # run the experiment and record successes/failures
+mean(as.numeric(pvals<=alpha))
+
+```
+```{r, echo=FALSE}
+sig <- as.factor(pvals<=alpha) 
+plot_df <- data.frame(cbind(pvals,sig))
+
+ggplot(plot_df,
+       aes(pvals, fill=pvals<=alpha)) +
+       geom_histogram(color="black", breaks=seq(0,0.5,0.005)) +
+       labs(x='p-value',
+            y='Frequency',
+            title='Distribution of experiment p-values',
+            subtitle='Results are consistent with specified power') +
+       theme_bw() +
+       theme(plot.title = element_text(face = "bold"),
+             legend.position = c(0.8,0.2)) 
+```
+
+### The elephant in the room
+
+The idea that we can use statistical theory to guarantee our experiments will be "successful" at a desired probability is intriguing, but there's a pretty blatant problem here: we don't know our effect size or its variability before conducting the experiment.
