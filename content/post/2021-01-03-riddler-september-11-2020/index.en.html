@@ -1,0 +1,56 @@
+---
+title: Riddler September 11 2020
+author: Keith Barnatchez
+date: '2020-09-11'
+slug: riddler-september-11-2020
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+
+<p>This week’s Riddler Express was a made with playoff basketball in mind (as well as last-minute GRE season):</p>
+<blockquote>
+<p>Once a week, folks from Blacksburg, Greensboro, and Silver Spring get together for a game of pickup basketball. Every week, anywhere from one to five individuals will show up from each town, with each outcome equally likely.</p>
+<p>Using all the players that show up, they want to create exactly two teams of equal size. Being a prideful bunch, everyone wears a jersey that matches the color mentioned in the name of their city. However, since it might create confusion to have one jersey playing for both sides, they agree that the residents of two towns will combine forces to play against the third town’s residents.</p>
+<p>What is the probability that, on any given week, it’s possible to form two equal teams with everyone playing, where two towns are pitted against the third?</p>
+</blockquote>
+<p>We can look at this specific case first, before looking at the general case where up to <span class="math inline">\(n\)</span> players can show up from each town (which is the extra credit portion of the problem).</p>
+<p>It makes sense to fix a pair of towns as a team (let’s say A and B) and look at what combinations of players are feasible (i.e. at most 5). Since there will only be one way for the number of players on team C to match the number of players on teams A and B for a fixed combination, the total number of feasible combinations will be exactly the total number of cases where we can form equal teams of A and B vs C. It’s easy enough to look at this in a table, enumerating the possible number of players from teams A and B by the table’s rows and columns, respectively, and letting each entry denote the corresponding sum for the row and column. Feasible cases are those that are at most 5:
+<span class="math display">\[
+  \begin{bmatrix}
+2 &amp; 3 &amp; 4 &amp; 5 &amp; . \\
+3 &amp; 4 &amp; 5 &amp; . &amp; . \\
+4 &amp; 5 &amp; . &amp; . &amp;  . \\ 
+5 &amp; . &amp; . &amp; . &amp;.  \\
+.&amp;.  &amp; . &amp;.  &amp; .
+\end{bmatrix}
+\]</span>
+This gives us 10 feasible combinations between towns A and B, so in turn there are 30 in total given that there are <span class="math inline">\(3\choose2\)</span> <span class="math inline">\(=3\)</span> possible ways to pair towns. That implies that there’s a <span class="math inline">\(\frac{30}{5^3} = \frac{6}{25}\)</span> probability of being able to pit 2 towns against 1 on any given week. Just to be sure, we can check that we get the same result through simulations:</p>
+<p>We see that the results match.</p>
+<div id="general-case" class="section level3">
+<h3>General case</h3>
+<p>Looking at the table above, we can see that there are <span class="math inline">\(\frac{n^2-n}{2}\)</span> feasible combinations for each possible town pairing, which implies the overall probability is
+<span class="math display">\[
+3 \frac{\left(\frac{n^2-n}{2}\right)}{n^3} 
+\]</span>
+We can plot this over <span class="math inline">\(n\)</span>:</p>
+<pre class="r"><code># Compute probability from small pickup games to preposterously large ones
+n &lt;- 3:50
+pi &lt;- rep(NaN,length(n))
+for (i in 3:max(n)) {
+  pi[i-2] &lt;- 3 * (0.5*(i^2 - i))/(i^3)
+}</code></pre>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/Figure1-1.png" width="672" /></p>
+<p>Source code for this post can be found <a href="https://github.com/kbarnatchez/kbarnatchez/tree/master/content/post/2020-09-12-riddler">here</a>.</p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/Figure2-1.png" width="672" /></p>
+</div>
