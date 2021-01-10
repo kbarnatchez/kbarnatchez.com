@@ -1,0 +1,102 @@
+---
+title: Bayesian approaches to power and sample size
+author: Keith Barnatchez
+date: '2021-01-10'
+slug: bayesian-approaches-to-power-and-sample-size
+categories:
+  - Clinical trials
+  - Bayesian stats
+tags:
+  - power
+  - sample size
+  - bayes
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-01-10T10:05:37-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+Last post, we looked at classical methods for estimating sample sizes required to achieve a desired power. While these approaches tend to be intuitive and easy to implement, they rely on the typically unrealistic assumption that we know the mean and variance of our effect of interest before conducting the study. One way to circumvent this issue is to take a Bayesian approach, which allows us to incorporate uncertainty into our beliefs about the effect size.
+
+There are multiple 
+
+### Prior simulation
+With the prior simulation approach---a bit of a Bayesian-frequentist hybrid---we treat either the experiment's power or its desired sample size as an unknown quantity while holding the other fixed. Then, by simulating numerous draws from our prior distributions, we are able to obtain distributions over our quantities of interest -- rather than reporting a single sample size, we are able to report a range that incorporates our uncertainty about the underlying effect size.
+
+First things first, we need to put priors on our parameters of interest. We'll assume $x|\mu,\sigma \sim N(\mu,\sigma^2)$, where $\mu \sim N(\mu_0,\sigma_0)$ and $\sigma \sim \text{Gamma}(\alpha_1,\alpha_2)$. From here, the procedure is straightforward. Let's consider the procedure when fixing the desired power:
+
+1. Draw values of $\mu$ and $\sigma$ from the specified prior distributions. This requires fixing any hyperparameters.
+2. With your fixed values of $\alpha$, $\beta$ and drawn values of $\mu$ and $\sigma$, determine the required sample size to achieve a power of $1-\beta$ using a frequentest framework. My previous post outlines how to do this for superiority tests of mean treatment effects.
+3. Record the calculated sample size and repeat steps 1 and 2. Do this for a large amount of iterations (at least 1,000).
+
+This process will leave you with a series of recorded sample sizes that can be analyzed.
+
+#### Example
+```{r}
+
+# Fixed values
+mu0 <- 3
+alpha<- 0.01
+beta <- 0.2
+E<- 10000 # number of episodes
+
+# Hyperparameters
+mean_mu <- 5
+gamma1 <- 8
+gamma2 <- 2
+
+calc_n <- function(sigma,mu,mu0,alpha,beta) {
+  n <- ceiling( ( sigma* (qnorm(1-beta) + qnorm(1-alpha)) / (mu-mu0)    )^2  )
+  return(n)
+}
+```
+
+From here, we just need to repeatedly draw values from our prior distributions and record the calculated sample sizes.
+
+```{r}
+simulate_studies <- function(alpha,beta,E,mu0,mean_mu,gamma1,gamma2) {
+  nvals <- rep(NaN,E)
+  for (e in 1:E) {
+    tempsig <- rgamma(1,shape=gamma1,rate=gamma2)
+    tempmu  <- rnorm(1,mean=mean_mu,sd=1)
+    
+    nvals[e] <- calc_n(tempsig,tempmu,mu0,alpha,beta)
+  }
+ return(nvals) 
+}
+
+nvals <- simulate_studies(alpha,beta,E,mu0,mean_mu,gamma1,gamma2)
+nvals<- nvals[nvals<quantile(nvals,0.95)]
+```
+
+This leaves us with a distribution of simulated sample sizes that we can visualize:
+```{r}
+plot_df <- data.frame(nvals)
+
+ggplot(plot_df,
+       aes(x = nvals)) +
+       geom_histogram(color="black",bins = 50) +
+       labs(x='Required N',
+            y='Frequency',
+            title='Distribution of required sample size',
+            subtitle='') +
+       theme_bw() +
+       theme(plot.title = element_text(face = "bold")) 
+
+```
+or summarize 
+```{r}
+summary(nvals)
+```

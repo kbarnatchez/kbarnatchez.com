@@ -36,6 +36,29 @@ projects: []
 \end{bmatrix}
 \]</span>
 This gives us 10 feasible combinations between towns A and B, so in turn there are 30 in total given that there are <span class="math inline">\(3\choose2\)</span> <span class="math inline">\(=3\)</span> possible ways to pair towns. That implies that there’s a <span class="math inline">\(\frac{30}{5^3} = \frac{6}{25}\)</span> probability of being able to pit 2 towns against 1 on any given week. Just to be sure, we can check that we get the same result through simulations:</p>
+<pre class="r"><code>nsim &lt;- 10000 # number of iterations
+nmax &lt;- 5 # max number of players from any town
+
+# Keep track of instances where two towns can be pitted against one
+counter &lt;- 0 
+num_success &lt;- 0
+for (i in 1:nsim) {
+  
+  # Draw number of players for each town
+  A &lt;- sample(1:nmax,1)
+  B &lt;- sample(1:nmax,1)
+  C &lt;- sample(1:nmax,1)
+  
+  # If feasible, increment our success tracker
+  if ( (A+B == C) || (B+C == A) || (C+A == B) ) {
+    num_success &lt;- num_success + 1
+  }
+  
+  counter &lt;- counter + 1
+}
+
+num_success/counter</code></pre>
+<pre><code>## [1] 0.244</code></pre>
 <p>We see that the results match.</p>
 <div id="general-case" class="section level3">
 <h3>General case</h3>
@@ -52,5 +75,4 @@ for (i in 3:max(n)) {
 }</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/Figure1-1.png" width="672" /></p>
 <p>Source code for this post can be found <a href="https://github.com/kbarnatchez/kbarnatchez/tree/master/content/post/2020-09-12-riddler">here</a>.</p>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/Figure2-1.png" width="672" /></p>
 </div>
