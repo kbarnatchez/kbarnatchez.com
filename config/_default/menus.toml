@@ -14,7 +14,7 @@
   weight = 20
 
 [[main]]
-  name = "Projects"
+  name = "Projects and working papers"
   url = "/project/"
   weight = 30
 

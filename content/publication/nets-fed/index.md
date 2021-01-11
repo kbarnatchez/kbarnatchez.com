@@ -24,12 +24,3 @@ title: An Assessment of the National Establishment Time Series (NETS) Database
 url_pdf: https://www.minneapolisfed.org/institute/working-papers/wp17-29.pdf
 url_source: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3065489
 ---
-
-{{% callout note %}}
-Click the *Cite* button above to demo the feature to enable visitors to import publication metadata into their reference management software.
-{{% /callout %}}
-
-{{% callout note %}}
-Create your slides in Markdown - click the *Slides* button to check out the example.
-{{% /callout %}}
-

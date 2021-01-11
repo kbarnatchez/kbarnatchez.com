@@ -11,12 +11,13 @@ bio: My research interests include clinical trials, spatial statistics and Bayes
 #  - course: BSc in Artificial Intelligence
 #    institution: Massachusetts Institute of Technology
 #    year: 2008
-email: ""
+email: 'keithbarnatchez@gmail.com'
 highlight_name: false
 interests:
-- Artificial Intelligence
-- Computational Linguistics
-- Information Retrieval
+- Bayesian statistics
+- Clinical trials and dynamic treatment designs
+- Causal inference
+- Health economics
 # organizations:
 # - name: Stanford University
 #  url: https://www.stanford.edu/
@@ -28,9 +29,9 @@ social:
 #- icon: twitter
 #  icon_pack: fab
 #  link: https://twitter.com/GeorgeCushen
-- icon: graduation-cap
-  icon_pack: fas
-  link: https://scholar.google.co.uk/citations?user=sIwtMXoAAAAJ
+#- icon: graduation-cap
+#  icon_pack: fas
+#  link: https://scholar.google.co.uk/citations?user=sIwtMXoAAAAJ
 - icon: github
   icon_pack: fab
   link: https://github.com/kbarnatchez
