@@ -1,0 +1,57 @@
+---
+title: Riddler January 15
+author: Keith Barnatchez
+date: '2021-01-16'
+slug: riddler-january-15
+categories:
+  - Riddler
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+
+<blockquote>
+<p>You’re a contestant on the hit new game show, “You Bet Your Fife.” On the show, a random real number (i.e., decimals are allowed) is chosen between 0 and 100. Your job is to guess a value that is less than this randomly chosen number. Your reward for winning is a novelty fife that is valued precisely at your guess. For example, if the number is 75 and you guess 5, you’d win a 5 dollar fife, but if you’d guessed 60, you’d win a 60 dollar fife. Meanwhile, a guess of 80 would win you nothing.</p>
+<p>What number should you guess to maximize the average value of your fifing winnings?</p>
+</blockquote>
+<div id="simulation" class="section level2">
+<h2>Simulation</h2>
+<p>First, we’ll approximate the solution via simulation.</p>
+<pre class="r"><code>nsim &lt;- 1e5
+rewards &lt;- rep(NaN,100)
+
+for (n in 1:100) { # loop over (discrete) guesses
+  cumreward &lt;- 0
+  for (s in 1:nsim) { # loop through simulated rewards
+    if (n &lt; 100*runif(1)) {
+      cumreward &lt;- cumreward+n
+    }
+  } # for s 
+  rewards[n] &lt;- cumreward/nsim 
+} # for n</code></pre>
+<p>After storing the results, we can plot the average reward over time:
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/plot-1.png" width="672" /></p>
+</div>
+<div id="analytic-approach" class="section level2">
+<h2>Analytic approach</h2>
+<p>Let’s represent our rewards from playing the game by the random variable <span class="math inline">\(r\)</span>, and <span class="math inline">\(n\)</span> denote our choice of number between 0 and 100. We care about the conditional distribution of rewards for a given number, <span class="math inline">\(p(r|n)\)</span>. This is a discrete distribution, as there are only two possibilities: win <span class="math inline">\(n\)</span> with probability <span class="math inline">\(1-\frac{n}{100}\)</span>, and nothing with probability <span class="math inline">\(\frac{n}{100}\)</span>. In turn, we can write out the conditional expectation of <span class="math inline">\(r\)</span>:
+<span class="math display">\[
+\mathbb{E}(r|n) = n\left(1-\frac{n}{100}\right) + 0 \times \frac{n}{100} =  n-\frac{n^2}{100}
+\]</span>
+We want to choose <span class="math inline">\(n\)</span> to maximize this expression:
+<span class="math display">\[
+\begin{aligned}
+\frac{\partial \mathbb{E}(r|n)}{\partial n}=0 &amp; \iff 1-\frac{n}{50}=0 \\
+&amp; \iff n=50
+\end{aligned}
+\]</span></p>
+</div>

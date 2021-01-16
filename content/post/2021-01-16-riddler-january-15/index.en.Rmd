@@ -1,0 +1,69 @@
+---
+title: Riddler January 15
+author: Keith Barnatchez
+date: '2021-01-16'
+slug: riddler-january-15
+categories:
+  - Riddler
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+```{r, echo=FALSE}
+library(ggplot2)
+```
+
+> You’re a contestant on the hit new game show, “You Bet Your Fife.” On the show, a random real number (i.e., decimals are allowed) is chosen between 0 and 100. Your job is to guess a value that is less than this randomly chosen number. Your reward for winning is a novelty fife that is valued precisely at your guess. For example, if the number is 75 and you guess 5, you’d win a 5 dollar fife, but if you’d guessed 60, you’d win a 60 dollar fife. Meanwhile, a guess of 80 would win you nothing.
+>
+> What number should you guess to maximize the average value of your fifing winnings?
+
+## Simulation 
+
+First, we'll approximate the solution via simulation.
+
+```{r simulation}
+nsim <- 1e5
+rewards <- rep(NaN,100)
+
+for (n in 1:100) { # loop over (discrete) guesses
+  cumreward <- 0
+  for (s in 1:nsim) { # loop through simulated rewards
+    if (n < 100*runif(1)) {
+      cumreward <- cumreward+n
+    }
+  } # for s 
+  rewards[n] <- cumreward/nsim 
+} # for n
+```
+After storing the results, we can plot the average reward over time:
+```{r plot, echo=FALSE}
+tempdf <- data.frame(rewards, 1:100)
+colnames(tempdf) <- c('reward','guess')
+
+ggplot(tempdf, aes(x=guess,y=reward)) + geom_line(color='darkblue', size=2) +
+         labs(x='Guess',
+            y='Avg reward',
+            title='Average rewards over different guesses',
+            subtitle='Rewards peak at 50') + theme_bw() 
+```
+
+## Analytic approach
+
+Let's represent our rewards from playing the game by the random variable $r$, and $n$ denote our choice of number between 0 and 100. We care about the conditional distribution of rewards for a given number, $p(r|n)$. This is a discrete distribution, as there are only two possibilities: win $n$ with probability $1-\frac{n}{100}$, and nothing with probability $\frac{n}{100}$. In turn, we can write out the conditional expectation of $r$:
+$$
+\mathbb{E}(r|n) = n\left(1-\frac{n}{100}\right) + 0 \times \frac{n}{100} =  n-\frac{n^2}{100}
+$$
+We want to choose $n$ to maximize this expression:
+$$
+\begin{aligned}
+\frac{\partial \mathbb{E}(r|n)}{\partial n}=0 & \iff 1-\frac{n}{50}=0 \\
+& \iff n=50
+\end{aligned}
+$$
