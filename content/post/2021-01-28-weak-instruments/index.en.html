@@ -1,0 +1,92 @@
+---
+title: Weak instruments
+author: Keith Barnatchez
+date: '2021-01-28'
+slug: weak-instruments
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-01-28T09:36:11-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+
+<p>A common challenge in causal inference is the presence of unobserved confounding variables. Imagine we’re interested in the average effect some variable <span class="math inline">\(x_1\)</span> has on some outcome of interest <span class="math inline">\(y\)</span>. We’re able to collect data on <span class="math inline">\(x_1\)</span> and <span class="math inline">\(y\)</span>, but it turns out that the true data generating process is
+<span class="math display">\[
+y = \beta x_1 + \alpha x_2 + \varepsilon
+\]</span>
+where
+<span class="math display">\[
+(x_1,x_2) \sim N\left(
+\begin{bmatrix}
+0 \\ 0
+\end{bmatrix},
+\Sigma
+\right)
+\]</span>
+and <span class="math inline">\(\varepsilon \sim N(0,\sigma^2_\varepsilon)\)</span>. If we were to go ahead and just estimate the model
+<span class="math display">\[
+\hat{y} = \hat{\beta}_0 + \hat{\beta}x_1
+\]</span>
+we would run into issues in the event that there is some correlation between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> and <span class="math inline">\(\alpha \new 0\)</span>. The intuition is that, since movements in <span class="math inline">\(x_1\)</span> are correlated with movements in <span class="math inline">\(x_2\)</span> but only observe <span class="math inline">\(x_1\)</span>, we give all the “credit” of ().</p>
+<p>Statisticians interested in causal inference have spent loads of time thinking about ways to circumvent the above issue. One common approach is the method of instrumental variables. The idea is that if <span class="math inline">\(y\)</span> is generated as described above, but there is some variable <span class="math inline">\(z\)</span> that is correlated with <span class="math inline">\(x_1\)</span> and uncorrelated with our other confounders, then we can use <span class="math inline">\(z\)</span> to “issolate” movements in <span class="math inline">\(x_1\)</span> that are unrelated to movements in <span class="math inline">\(x_2\)</span>.</p>
+<p>In practice, there are a few ways to implement instrumental variables estimation. Perhaps the most intuitive is the method of two-stage least squares.</p>
+<ol style="list-style-type: decimal">
+<li>Estimate
+<span class="math display">\[
+\hat{x}_1 = \hat{\alpha}_0 + \hat{\alpha}_1  z
+\]</span></li>
+<li>Take your fitted values <span class="math inline">\(\hat{x_1}\)</span> and estimate
+<span class="math display">\[
+\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 \hat{x}_1
+\]</span></li>
+</ol>
+<div id="practial-issues" class="section level2">
+<h2>Practial issues</h2>
+<p>As we’ll see at the end of the post, the instrumental variables approach can have nice properties <strong>provided that</strong> (1) our instrument is truly uncorrelated with the other confounders and (2) it’s actually correlated with <span class="math inline">\(x_1\)</span>. And it turns out, ().</p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/plot-1.png" width="672" /></p>
+</div>
+<div id="isolating-the-bias" class="section level2">
+<h2>Isolating the bias</h2>
+<p>If we let <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> (), then if the true model is
+<span class="math display">\[
+y = X_1\beta + X_2\alpha + U
+\]</span>
+and we estimate
+<span class="math display">\[
+y = X_1\beta + E
+\]</span>
+then our estimate <span class="math inline">\(\hat{\beta}\)</span> is given by:
+<span class="math display">\[
+\hat{\beta} = (X_1&#39; X_1)^{-1}X_1&#39;Y
+\]</span>
+Now, we’ll sub in the true model for <span class="math inline">\(Y\)</span> to let us relate <span class="math inline">\(\hat{\beta}\)</span> to <span class="math inline">\(\beta\)</span>:
+<span class="math display">\[
+\begin{align}
+\hat{\beta} &amp;= (X_1&#39; X_1)^{-1}X_1&#39;(X_1\beta + X_2\alpha + U) \\ 
+&amp;= \underbrace{(X_1&#39; X_1)^{-1}X_1&#39;X_1}_{I}\beta + (X_1&#39; X_1)^{-1}X_1&#39; X_2\alpha + (X_1&#39; X_1)^{-1}X_1&#39;U \\
+&amp;= \beta + (X_1&#39; X_1)^{-1}X_1&#39; X_2\alpha + (X_1&#39; X_1)^{-1}X_1&#39;U
+\end{align}
+\]</span>
+Then, we just have to take the expected value of both sides to derive the expected bias:
+<span class="math display">\[
+\begin{align}
+\mathbb{E}(\hat{\beta}) &amp;= \mathbb{E}(\beta) + \mathbb{E}[ (X_1&#39; X_1)^{-1}X_1&#39; X_2\alpha] + \underbrace{\mathbb{E}[ (X_1&#39; X_1)^{-1}X_1&#39;U]}_{0}  \\
+&amp;= \beta + \underbrace{\alpha (X_1&#39;X)^{-1}\mathbb{E}(X_1&#39;X_2|X_1)}_{\text{bias}}
+\end{align}
+\]</span>
+On the first line, the final term drops out. Why’s that, if the whole issue is that <span class="math inline">\(X_1\)</span> is correlated with the error term? Recall that <span class="math inline">\(U\)</span> corresponds to the errors of the true model, where our assumption of <span class="math inline">\(\text{corr}(X_1,U)=0\)</span> actually does hold, unlike our assumption of <span class="math inline">\(\text{corr}(X_1,E)\)</span>. On the second line, I can move <span class="math inline">\(\alpha\)</span> to the front since it’s just a scalar, and I emphasize that the remiaining expectation term is conditional on <span class="math inline">\(X_1\)</span>, which we observe.</p>
+<p>So what does it take for <span class="math inline">\(\mathbb{E}(\hat{\beta})=\beta\)</span>? There are two sufficient conditions:</p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(\alpha=0\)</span>. In this scenario, even if <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are correlated, it won’t impact out inferences since <span class="math inline">\(X_2\)</span> doesn’t influence <span class="math inline">\(y\)</span>.</li>
+<li><span class="math inline">\(\text{corr}(X_1,X_2)=0\)</span>. In this case, even though <span class="math inline">\(X_2\)</span> influences <span class="math inline">\(y\)</span>, we don’t conflate ()</li>
+</ol>
+</div>
