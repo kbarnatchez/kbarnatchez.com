@@ -19,7 +19,7 @@ projects: []
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 library(ggplot2)
 library(mvtnorm)
@@ -42,7 +42,7 @@ and $\varepsilon \sim N(0,\sigma^2_\varepsilon)$. If we were to go ahead and jus
 $$
 \hat{y} = \hat{\beta}_0 + \hat{\beta}x_1
 $$
-we would run into issues in the event that there is some correlation between $x_1$ and $x_2$ and $\alpha \new 0$. The intuition is that, since movements in $x_1$ are correlated with movements in $x_2$ but only observe $x_1$, we give all the "credit" of (). 
+we would run into issues in the event that there is some correlation between $x_1$ and $x_2$ and $\alpha \neq 0$. The intuition is that, since movements in $x_1$ are correlated with movements in $x_2$ but only observe $x_1$, we give all the "credit" of (). 
 
 Statisticians interested in causal inference have spent loads of time thinking about ways to circumvent the above issue. One common approach is the method of instrumental variables. The idea is that if $y$ is generated as described above, but there is some variable $z$ that is correlated with $x_1$ and uncorrelated with our other confounders, then we can use $z$ to "issolate" movements in $x_1$ that are unrelated to movements in $x_2$. 
 
@@ -59,13 +59,17 @@ $$
 
 ## Practial issues
 
-As we'll see at the end of the post, the instrumental variables approach can have nice properties **provided that** (1) our instrument is truly uncorrelated with the other confounders and (2) it's actually correlated with $x_1$. And it turns out, (). 
+As we'll see at the end of the post, the instrumental variables approach can have nice properties **provided that** (1) our instrument is truly uncorrelated with the other confounders and (2) it's actually correlated with $x_1$. And it turns out, there can be issues if correlation exists between $x_1$ and $z$, but it is very weak. First, let's demonstrate an example of. We'll make the following assumptions:
+
+1. $\text{corr}(x_1,z)=0.7$
+2. $\text{corr}(x_2,z)=0$
+3. $\text{corr}(x_1,x_2)=-0.5$
 
 ```{r simulate, echo=FALSE}
 minN <- 50
-maxN <- 1000
+maxN <- 5000
 
-cor_x1_z <- 0.5
+cor_x1_z <- 0.7
 cor_x1_x2 <- -0.5
 cor_x2_z <- 0.0
 
@@ -101,12 +105,57 @@ df <- rbind(df_raw,df_2s)
 ```
 
 ```{r plot, echo=FALSE}
-ggplot(df, aes(x=n,y=beta,color=Version)) + geom_line() + geom_hline(yintercept = 0.3) + xlab('Sample size') + ylab('Effect estimate')
+ggplot(df, aes(x=n,y=beta,color=Version)) + geom_line() + geom_hline(yintercept = 0.3) + xlab('Sample size') + ylab('Effect estimate') +  scale_y_continuous(limits=c(-0.5,1))
+```
+
+(). Now we'll consider a case where $z$ is a weaker instrument. We'll mostly use the same assumptions as above, but now suppose $\text{corr}(x_1,z)=0.1$:
+
+```{r simulate2, echo=FALSE}
+minN <- 50
+maxN <- 5000
+
+cor_x1_z <- 0.1
+cor_x1_x2 <- -0.5
+cor_x2_z <- 0.0
+
+sigma <- matrix(c(1,cor_x1_x2,cor_x1_z,
+                  cor_x1_x2,1,cor_x2_z,
+                  cor_x1_z,cor_x2_z,1),ncol = 3)
+
+beta_2s <- rep(NA,maxN-minN+1) 
+beta    <- rep(NA,maxN-minN+1)
+
+# Loop 
+i <- 1
+for (n in minN:maxN) {
+
+  X <- rmvnorm(n,mean=c(0,0,0),sigma=sigma, method="eigen")
+  x1 <- X[,1]
+  x2 <- X[,2]
+  z <-  X[,3]
+  
+  y <- 0.3*x1 - 0.7*x2 + rnorm(n) 
+  xhat <- lm(x1 ~ z)$fitted.values
+  
+  beta[i] <- lm(y ~ x1)$coefficients[2]
+  beta_2s[i] <- lm(y ~ xhat)$coefficients[2]
+  i <- i+1
+
+}
+
+# Make dfs
+df_raw <- data.frame(n=minN:maxN,beta=beta,Version=rep('Unadjusted',maxN-minN+1))
+df_2s  <-  data.frame(n=minN:maxN,beta=beta_2s,Version=rep('Two-stage',maxN-minN+1))
+df <- rbind(df_raw,df_2s)
+```
+
+```{r plot2, echo=FALSE}
+ggplot(df, aes(x=n,y=beta,color=Version)) + geom_line() + geom_hline(yintercept = 0.3) + xlab('Sample size') + ylab('Effect estimate') +  scale_y_continuous(limits=c(-0.5,1))
 ```
 
 ## Isolating the bias
 
-If we let $X_1$ and $X_2$ (), then if the true model is
+If we let $X_1$ and $X_2$ represent vectors of individual observations on $x_1$ and $x_2$, then if the true model is
 $$
 y = X_1\beta + X_2\alpha + U
 $$
@@ -135,7 +184,32 @@ $$
 $$
 On the first line, the final term drops out. Why's that, if the whole issue is that $X_1$ is correlated with the error term? Recall that $U$ corresponds to the errors of the true model, where our assumption of $\text{corr}(X_1,U)=0$ actually does hold, unlike our assumption of $\text{corr}(X_1,E)$. On the second line, I can move $\alpha$ to the front since it's just a scalar, and I emphasize that the remiaining expectation term is conditional on $X_1$, which we observe.
 
-So what does it take for $\mathbb{E}(\hat{\beta})=\beta$? There are two sufficient conditions:
+So what does it take for $\mathbb{E}(\hat{\beta})=\beta$? Effectively, we need the second term in the expression above to drop out. There are two sufficient conditions:
 
 1. $\alpha=0$. In this scenario, even if $X_1$ and $X_2$ are correlated, it won't impact out inferences since $X_2$ doesn't influence $y$.
 2. $\text{corr}(X_1,X_2)=0$. In this case, even though $X_2$ influences $y$, we don't conflate ()
+
+## Unbiasedness of two-stage least squares
+
+To show the unbiasedness of the two-stage least squares approach, let's assume there is some variable $Z$ such that $\text{corr}(X_1,Z)\neq 0$ and $\text{corr}(X_2,Z)=0$. We'll let $\hat{\gamma}$ be the coefficient from regressing $X_1$ on $Z$:
+$$
+\hat{X}_1=\hat{\gamma} Z
+$$
+Then, we can proceed in a similar fashion to before:
+$$
+\begin{align}
+\hat{\beta}&=(\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'(X_1\beta + X_2\alpha + U) \\
+&= (\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'X_1\beta + (\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'X_2\alpha + (\hat{\gamma} Z' \hat{\gamma} Z')^{-1}\hat{\gamma} Z'U \\
+&= \frac{1}{\hat{\gamma}}\underbrace{\left(Z'Z\right)^{-1}Z'X_1}_{\hat{\gamma}} \beta + (\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'X_2\alpha + (\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'U \\
+&= \beta + (\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'X_2\alpha + (\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'U
+\end{align}
+$$
+Taking expectations again (and noting that the last term drops out sinze $Z$ and $U$ are uncorrelated):
+$$
+\begin{align}
+\mathbb{E}(\hat{\beta}) &= \beta + \mathbb{E}[(\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'X_2\alpha] \\ 
+&=\beta + \frac{ \alpha}{\hat{\gamma}} \mathbb{E}[(Z'Z)^{-1}Z'X_2 ] \\
+&= \beta + \frac{ \alpha \delta}{\hat{\gamma}}
+\end{align}
+$$
+where I let $\delta=\mathbb{E}[(Z'Z)^{-1}Z'X_2 ]$ be the expected ().

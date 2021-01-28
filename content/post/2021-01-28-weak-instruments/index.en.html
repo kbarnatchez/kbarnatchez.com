@@ -36,7 +36,7 @@ and <span class="math inline">\(\varepsilon \sim N(0,\sigma^2_\varepsilon)\)</sp
 <span class="math display">\[
 \hat{y} = \hat{\beta}_0 + \hat{\beta}x_1
 \]</span>
-we would run into issues in the event that there is some correlation between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> and <span class="math inline">\(\alpha \new 0\)</span>. The intuition is that, since movements in <span class="math inline">\(x_1\)</span> are correlated with movements in <span class="math inline">\(x_2\)</span> but only observe <span class="math inline">\(x_1\)</span>, we give all the “credit” of ().</p>
+we would run into issues in the event that there is some correlation between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> and <span class="math inline">\(\alpha \neq 0\)</span>. The intuition is that, since movements in <span class="math inline">\(x_1\)</span> are correlated with movements in <span class="math inline">\(x_2\)</span> but only observe <span class="math inline">\(x_1\)</span>, we give all the “credit” of ().</p>
 <p>Statisticians interested in causal inference have spent loads of time thinking about ways to circumvent the above issue. One common approach is the method of instrumental variables. The idea is that if <span class="math inline">\(y\)</span> is generated as described above, but there is some variable <span class="math inline">\(z\)</span> that is correlated with <span class="math inline">\(x_1\)</span> and uncorrelated with our other confounders, then we can use <span class="math inline">\(z\)</span> to “issolate” movements in <span class="math inline">\(x_1\)</span> that are unrelated to movements in <span class="math inline">\(x_2\)</span>.</p>
 <p>In practice, there are a few ways to implement instrumental variables estimation. Perhaps the most intuitive is the method of two-stage least squares.</p>
 <ol style="list-style-type: decimal">
@@ -51,12 +51,19 @@ we would run into issues in the event that there is some correlation between <sp
 </ol>
 <div id="practial-issues" class="section level2">
 <h2>Practial issues</h2>
-<p>As we’ll see at the end of the post, the instrumental variables approach can have nice properties <strong>provided that</strong> (1) our instrument is truly uncorrelated with the other confounders and (2) it’s actually correlated with <span class="math inline">\(x_1\)</span>. And it turns out, ().</p>
+<p>As we’ll see at the end of the post, the instrumental variables approach can have nice properties <strong>provided that</strong> (1) our instrument is truly uncorrelated with the other confounders and (2) it’s actually correlated with <span class="math inline">\(x_1\)</span>. And it turns out, there can be issues if correlation exists between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(z\)</span>, but it is very weak. First, let’s demonstrate an example of. We’ll make the following assumptions:</p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(\text{corr}(x_1,z)=0.7\)</span></li>
+<li><span class="math inline">\(\text{corr}(x_2,z)=0\)</span></li>
+<li><span class="math inline">\(\text{corr}(x_1,x_2)=-0.5\)</span></li>
+</ol>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/plot-1.png" width="672" /></p>
+<p>(). Now we’ll consider a case where <span class="math inline">\(z\)</span> is a weaker instrument. We’ll mostly use the same assumptions as above, but now suppose <span class="math inline">\(\text{corr}(x_1,z)=0.1\)</span>:</p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/plot2-1.png" width="672" /></p>
 </div>
 <div id="isolating-the-bias" class="section level2">
 <h2>Isolating the bias</h2>
-<p>If we let <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> (), then if the true model is
+<p>If we let <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> represent vectors of individual observations on <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>, then if the true model is
 <span class="math display">\[
 y = X_1\beta + X_2\alpha + U
 \]</span>
@@ -84,9 +91,34 @@ Then, we just have to take the expected value of both sides to derive the expect
 \end{align}
 \]</span>
 On the first line, the final term drops out. Why’s that, if the whole issue is that <span class="math inline">\(X_1\)</span> is correlated with the error term? Recall that <span class="math inline">\(U\)</span> corresponds to the errors of the true model, where our assumption of <span class="math inline">\(\text{corr}(X_1,U)=0\)</span> actually does hold, unlike our assumption of <span class="math inline">\(\text{corr}(X_1,E)\)</span>. On the second line, I can move <span class="math inline">\(\alpha\)</span> to the front since it’s just a scalar, and I emphasize that the remiaining expectation term is conditional on <span class="math inline">\(X_1\)</span>, which we observe.</p>
-<p>So what does it take for <span class="math inline">\(\mathbb{E}(\hat{\beta})=\beta\)</span>? There are two sufficient conditions:</p>
+<p>So what does it take for <span class="math inline">\(\mathbb{E}(\hat{\beta})=\beta\)</span>? Effectively, we need the second term in the expression above to drop out. There are two sufficient conditions:</p>
 <ol style="list-style-type: decimal">
 <li><span class="math inline">\(\alpha=0\)</span>. In this scenario, even if <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are correlated, it won’t impact out inferences since <span class="math inline">\(X_2\)</span> doesn’t influence <span class="math inline">\(y\)</span>.</li>
 <li><span class="math inline">\(\text{corr}(X_1,X_2)=0\)</span>. In this case, even though <span class="math inline">\(X_2\)</span> influences <span class="math inline">\(y\)</span>, we don’t conflate ()</li>
 </ol>
+</div>
+<div id="unbiasedness-of-two-stage-least-squares" class="section level2">
+<h2>Unbiasedness of two-stage least squares</h2>
+<p>To show the unbiasedness of the two-stage least squares approach, let’s assume there is some variable <span class="math inline">\(Z\)</span> such that <span class="math inline">\(\text{corr}(X_1,Z)\neq 0\)</span> and <span class="math inline">\(\text{corr}(X_2,Z)=0\)</span>. We’ll let <span class="math inline">\(\hat{\gamma}\)</span> be the coefficient from regressing <span class="math inline">\(X_1\)</span> on <span class="math inline">\(Z\)</span>:
+<span class="math display">\[
+\hat{X}_1=\hat{\gamma} Z
+\]</span>
+Then, we can proceed in a similar fashion to before:
+<span class="math display">\[
+\begin{align}
+\hat{\beta}&amp;=(\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;(X_1\beta + X_2\alpha + U) \\
+&amp;= (\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;X_1\beta + (\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;X_2\alpha + (\hat{\gamma} Z&#39; \hat{\gamma} Z&#39;)^{-1}\hat{\gamma} Z&#39;U \\
+&amp;= \frac{1}{\hat{\gamma}}\underbrace{\left(Z&#39;Z\right)^{-1}Z&#39;X_1}_{\hat{\gamma}} \beta + (\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;X_2\alpha + (\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;U \\
+&amp;= \beta + (\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;X_2\alpha + (\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;U
+\end{align}
+\]</span>
+Taking expectations again (and noting that the last term drops out sinze <span class="math inline">\(Z\)</span> and <span class="math inline">\(U\)</span> are uncorrelated):
+<span class="math display">\[
+\begin{align}
+\mathbb{E}(\hat{\beta}) &amp;= \beta + \mathbb{E}[(\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;X_2\alpha] \\ 
+&amp;=\beta + \frac{ \alpha}{\hat{\gamma}} \mathbb{E}[(Z&#39;Z)^{-1}Z&#39;X_2 ] \\
+&amp;= \beta + \frac{ \alpha \delta}{\hat{\gamma}}
+\end{align}
+\]</span>
+where I let <span class="math inline">\(\delta=\mathbb{E}[(Z&#39;Z)^{-1}Z&#39;X_2 ]\)</span> be the expected ().</p>
 </div>

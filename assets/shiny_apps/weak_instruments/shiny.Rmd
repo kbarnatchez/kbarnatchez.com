@@ -13,41 +13,7 @@ library(ggplot2)
 library(mvtnorm)
 ```
 
-A common challenge in causal inference is the presence of unobserved confounding variables. Imagine we're interested in the average effect some variable $x_1$ has on some outcome of interest $y$. We're able to collect data on $x_1$ and $y$, but it turns out that the true data generating process is
-$$
-y = \beta x_1 + \alpha x_2 + \varepsilon
-$$
-where
-$$
-(x_1,x_2) \sim N\left(
-\begin{bmatrix}
-0 \\ 0
-\end{bmatrix},
-\Sigma
-\right)
-$$
-and $\varepsilon \sim N(0,\sigma^2_\varepsilon)$. If we were to go ahead and just estimate the model
-$$
-\hat{y} = \hat{\beta}_0 + \hat{\beta}x_1
-$$
-we would run into issues in the event that there is some correlation between $x_1$ and $x_2$ and $\alpha \new 0$. The intuition is that, since movements in $x_1$ are correlated with movements in $x_2$ but only observe $x_1$, we give all the "credit" of (). 
-
-Statisticians interested in causal inference have spent loads of time thinking about ways to circumvent the above issue. One common approach is the method of instrumental variables. The idea is that if $y$ is generated as described above, but there is some variable $z$ that is correlated with $x_1$ and uncorrelated with our other confounders, then we can use $z$ to "issolate" movements in $x_1$ that are unrelated to movements in $x_2$. 
-
-In practice, there are a few ways to implement instrumental variables estimation. Perhaps the most intuitive is the method of two-stage least squares. 
-
-1. Estimate 
-$$
-\hat{x}_1 = \hat{\alpha}_0 + \hat{\alpha}_1  z
-$$
-2. Take your fitted values $\hat{x_1}$ and estimate
-$$
-\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 \hat{x}_1
-$$
-
-## Practial issues
-
-As we'll see at the end of the post, the instrumental variables approach can have nice properties **provided that** (1) our instrument is truly uncorrelated with the other confounders and (2) it's actually correlated with $x_1$. And it turns out, (). 
+As a first exercise, let's look at how the "strength" of our instrument and the relationship between our variable of interest and the confounding factor impact our results when using regular vs. two-stage least squares. You can use the sliders below to alter both parameters. The subsequent figure is the result of drawing samples of increasing size under the assumptions you impose with the sliders.
 
 ```{r, echo=FALSE}
 
@@ -57,7 +23,7 @@ inputPanel(
               min = -0.95, max = 0.95, value = 0.05, step = 0.01),
   
   sliderInput("corr_x1_z", label = "Instrument correlation:",
-              min = 0.01, max = 0.95, value = 0.9, step = 0.01)
+              min = -0.95, max = 0.95, value = 0.9, step = 0.01)
 )
 
 renderPlot({
@@ -108,38 +74,3 @@ renderPlot({
 
 ```
 
-## Isolating the bias
-
-If we let $X_1$ and $X_2$ (), then if the true model is
-$$
-y = X_1\beta + X_2\alpha + U
-$$
-and we estimate
-$$
-y = X_1\beta + E
-$$
-then our estimate $\hat{\beta}$ is given by:
-$$
-\hat{\beta} = (X_1' X_1)^{-1}X_1'Y
-$$
-Now, we'll sub in the true model for $Y$ to let us relate $\hat{\beta}$ to $\beta$:
-$$
-\begin{align}
-\hat{\beta} &= (X_1' X_1)^{-1}X_1'(X_1\beta + X_2\alpha + U) \\ 
-&= \underbrace{(X_1' X_1)^{-1}X_1'X_1}_{I}\beta + (X_1' X_1)^{-1}X_1' X_2\alpha + (X_1' X_1)^{-1}X_1'U \\
-&= \beta + (X_1' X_1)^{-1}X_1' X_2\alpha + (X_1' X_1)^{-1}X_1'U
-\end{align}
-$$
-Then, we just have to take the expected value of both sides to derive the expected bias:
-$$
-\begin{align}
-\mathbb{E}(\hat{\beta}) &= \mathbb{E}(\beta) + \mathbb{E}[ (X_1' X_1)^{-1}X_1' X_2\alpha] + \underbrace{\mathbb{E}[ (X_1' X_1)^{-1}X_1'U]}_{0}  \\
-&= \beta + \underbrace{\alpha (X_1'X)^{-1}\mathbb{E}(X_1'X_2|X_1)}_{\text{bias}}
-\end{align}
-$$
-On the first line, the final term drops out. Why's that, if the whole issue is that $X_1$ is correlated with the error term? Recall that $U$ corresponds to the errors of the true model, where our assumption of $\text{corr}(X_1,U)=0$ actually does hold, unlike our assumption of $\text{corr}(X_1,E)$. On the second line, I can move $\alpha$ to the front since it's just a scalar, and I emphasize that the remiaining expectation term is conditional on $X_1$, which we observe.
-
-So what does it take for $\mathbb{E}(\hat{\beta})=\beta$? There are two sufficient conditions:
-
-1. $\alpha=0$. In this scenario, even if $X_1$ and $X_2$ are correlated, it won't impact out inferences since $X_2$ doesn't influence $y$.
-2. $\text{corr}(X_1,X_2)=0$. In this case, even though $X_2$ influences $y$, we don't conflate ()
