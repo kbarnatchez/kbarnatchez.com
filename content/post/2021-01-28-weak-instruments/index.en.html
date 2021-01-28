@@ -58,7 +58,8 @@ we would run into issues in the event that there is some correlation between <sp
 <li><span class="math inline">\(\text{corr}(x_1,x_2)=-0.5\)</span></li>
 </ol>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/plot-1.png" width="672" /></p>
-<p>(). Now we’ll consider a case where <span class="math inline">\(z\)</span> is a weaker instrument. We’ll mostly use the same assumptions as above, but now suppose <span class="math inline">\(\text{corr}(x_1,z)=0.1\)</span>:</p>
+<p>A couple things are apparent right away. Unsurprisingly, the variance of both estimates falls as the sample size increases. Notice that the two-stage approach has slightly higher variance as a result of the additional uncertainty introduced by the first stage estimation Importantly, we can see mean estimates of both approaches differ by a constant – this value is the bias that we’ll derive later. And perhaps most importantly, we can see that the two-stage estimates are centered around the true value of <span class="math inline">\(\beta\)</span> (the black reference line) – this reflects the unbiasedness of two-stage least squares when the necessary conditions hold.</p>
+<p>Now we’ll consider a case where <span class="math inline">\(z\)</span> is a weak instrument. We’ll mostly use the same assumptions as above, but now suppose <span class="math inline">\(\text{corr}(x_1,z)=0.1\)</span>. Repeating the same procedure under this new assumption yields the following:</p>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/plot2-1.png" width="672" /></p>
 </div>
 <div id="isolating-the-bias" class="section level2">
@@ -112,7 +113,7 @@ Then, we can proceed in a similar fashion to before:
 &amp;= \beta + (\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;X_2\alpha + (\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;U
 \end{align}
 \]</span>
-Taking expectations again (and noting that the last term drops out sinze <span class="math inline">\(Z\)</span> and <span class="math inline">\(U\)</span> are uncorrelated):
+Taking expectations again (and noting that the last term drops out since <span class="math inline">\(Z\)</span> and <span class="math inline">\(U\)</span> are uncorrelated):
 <span class="math display">\[
 \begin{align}
 \mathbb{E}(\hat{\beta}) &amp;= \beta + \mathbb{E}[(\hat{\gamma} Z&#39; \hat{\gamma} Z)^{-1}\hat{\gamma} Z&#39;X_2\alpha] \\ 
@@ -120,5 +121,6 @@ Taking expectations again (and noting that the last term drops out sinze <span c
 &amp;= \beta + \frac{ \alpha \delta}{\hat{\gamma}}
 \end{align}
 \]</span>
-where I let <span class="math inline">\(\delta=\mathbb{E}[(Z&#39;Z)^{-1}Z&#39;X_2 ]\)</span> be the expected ().</p>
+where I let <span class="math inline">\(\delta=\mathbb{E}[(Z&#39;Z)^{-1}Z&#39;X_2 ]\)</span>. Given our assumption that <span class="math inline">\(\text{corr}(X_2,Z)=0\)</span>, <span class="math inline">\(\delta=0\)</span> and the final term drops out.</p>
+<p>I like this last expression because it lets us think of scenarios where</p>
 </div>

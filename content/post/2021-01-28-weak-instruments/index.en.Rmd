@@ -105,10 +105,16 @@ df <- rbind(df_raw,df_2s)
 ```
 
 ```{r plot, echo=FALSE}
-ggplot(df, aes(x=n,y=beta,color=Version)) + geom_line() + geom_hline(yintercept = 0.3) + xlab('Sample size') + ylab('Effect estimate') +  scale_y_continuous(limits=c(-0.5,1))
+ggplot(df, aes(x=n,y=beta,color=Version)) + geom_line() + geom_hline(yintercept = 0.3) +      labs(x='Sample size',
+       y = 'Effect estimate',
+       title='Regular vs. two-stage least squares',
+       subtitle='Assuming presence of strong instrument') +
+  scale_y_continuous(limits=c(-0.5,1))
 ```
 
-(). Now we'll consider a case where $z$ is a weaker instrument. We'll mostly use the same assumptions as above, but now suppose $\text{corr}(x_1,z)=0.1$:
+A couple things are apparent right away. Unsurprisingly, the variance of both estimates falls as the sample size increases. Notice that the two-stage approach has slightly higher variance as a result of the additional uncertainty introduced by the first stage estimation Importantly, we can see mean estimates of both approaches differ by a constant -- this value is the bias that we'll derive later. And perhaps most importantly, we can see that the two-stage estimates are centered around the true value of $\beta$ (the black reference line) -- this reflects the unbiasedness of two-stage least squares when the necessary conditions hold. 
+
+Now we'll consider a case where $z$ is a weak instrument. We'll mostly use the same assumptions as above, but now suppose $\text{corr}(x_1,z)=0.1$. Repeating the same procedure under this new assumption yields the following:
 
 ```{r simulate2, echo=FALSE}
 minN <- 50
@@ -150,8 +156,14 @@ df <- rbind(df_raw,df_2s)
 ```
 
 ```{r plot2, echo=FALSE}
-ggplot(df, aes(x=n,y=beta,color=Version)) + geom_line() + geom_hline(yintercept = 0.3) + xlab('Sample size') + ylab('Effect estimate') +  scale_y_continuous(limits=c(-0.5,1))
+ggplot(df, aes(x=n,y=beta,color=Version)) + geom_line() + geom_hline(yintercept = 0.3) +   labs(x='Sample size',
+       y = 'Effect estimate',
+       title='Regular vs. two-stage least squares',
+       subtitle='Assuming presence of weak instrument') +
+       scale_y_continuous(limits=c(-0.5,1))
 ```
+
+
 
 ## Isolating the bias
 
@@ -204,7 +216,7 @@ $$
 &= \beta + (\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'X_2\alpha + (\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'U
 \end{align}
 $$
-Taking expectations again (and noting that the last term drops out sinze $Z$ and $U$ are uncorrelated):
+Taking expectations again (and noting that the last term drops out since $Z$ and $U$ are uncorrelated):
 $$
 \begin{align}
 \mathbb{E}(\hat{\beta}) &= \beta + \mathbb{E}[(\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'X_2\alpha] \\ 
@@ -212,4 +224,6 @@ $$
 &= \beta + \frac{ \alpha \delta}{\hat{\gamma}}
 \end{align}
 $$
-where I let $\delta=\mathbb{E}[(Z'Z)^{-1}Z'X_2 ]$ be the expected ().
+where I let $\delta=\mathbb{E}[(Z'Z)^{-1}Z'X_2 ]$. Given our assumption that $\text{corr}(X_2,Z)=0$, $\delta=0$ and the final term drops out. 
+
+I like this last expression because it lets us think of scenarios where 
