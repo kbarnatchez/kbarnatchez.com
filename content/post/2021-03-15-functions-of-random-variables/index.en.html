@@ -1,0 +1,82 @@
+---
+title: Functions of random variables
+author: Keith Barnatchez
+date: '2021-03-15'
+slug: functions-of-random-variables
+categories:
+  - Statistics
+tags:
+  - statistics
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-03-15T16:09:13-04:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+
+<p>I remember being told in my undergraduate statistical inference class that if you want to understand statistics, <strong>you need to understand functions of random variables</strong>. In a lot of ways, functions of random variables are the unsung heroes of statistical inference – the forgotten middle man that produces all of the interesting output. To truly appreciate their importance, it helps to ask one of the most fundamental (and seemingly simple) questions in statistics.</p>
+<div id="what-is-a-statistic" class="section level2">
+<h2>What is a statistic?</h2>
+<p>The word <em>statistic</em> is tossed around in conversation and writing countless times throughout the day. But there’s a decent chance that if I were to ask you to give a precise definition of what a <em>statistic</em> is, .</p>
+<p>Not-so-formally, a statistic can just be described as a number that describes a sample of data. For instance, the average height of all American adults contacted by a survey company is a statistic, as is the share of respondents that are Republican in a sample of registered variables. This gets at the overall goal of statistics as a discipline: describing (potentially large) sets of data with easier-to-interpret numbers that can give us insight into some population of interest.</p>
+<p>More precisely, given some set of data <span class="math inline">\(X\)</span> that has <span class="math inline">\(n\)</span> observations, a statistic is some function <span class="math inline">\(T\)</span> such that
+<span class="math display">\[
+T(X): \mathbb{R}^n \to \mathbb{R}^m,
+\]</span>
+where <span class="math inline">\(m \leq n\)</span>. In words, <span class="math inline">\(T\)</span> is a function that maps our set of data (a high-dimensional quantity) to a lower-dimensional quantity. This gets at the basic idea of statistics: to take some large set of information (data) and summarize it with a smaller set of numbers (statistics).</p>
+<p>In the most frequent and simple cases, <span class="math inline">\(m=1\)</span> and our statistic is just a number. An example would be the average height of a sample of <span class="math inline">\(1000\)</span> adults: in this case, <span class="math inline">\(n=1000\)</span>, <span class="math inline">\(m=1\)</span> and <span class="math inline">\(T(X)=\frac{1}{1000}\sum_{i=1}^{1000}x_i\)</span>. Pretty straightforward, right? Here’s the kicker: <strong>there are infinitely many ways to choose a function <span class="math inline">\(T\)</span>, and most of those choices will suck.</strong> In most (ideal) contexts, the data <span class="math inline">\(X\)</span> that we collect will be a collection of random variables, making our choice of statistic <span class="math inline">\(T\)</span> (drumroll) a function of random variables.</p>
+<p>The entire discipline of statistical inference is devoted to determining which statistics suck less than others, typically under varying circumstances related to the underlying data and how it was collected. At this point, it should (hopefully) be beginning to become clear that if we want to avoid using sucky statistics, we need to understand the more general idea of functions of random variables.</p>
+<div id="a-motivating-example" class="section level3">
+<h3>A motivating example</h3>
+<p>Let’s imagine we are interested in some variable <span class="math inline">\(Y\)</span> that we know to be (standard) normally distributed. This distribution is pretty well-understood – for instance, we can easily plot its density function, and make reasonable guesses about its plausible range of values from repeated sampling:</p>
+<pre class="r"><code>x &lt;- seq(-4, 4, length=1000)
+y &lt;- dnorm(x, mean=0, sd=1)
+plot(x, y, type=&quot;l&quot;, lwd=1,ylab=&#39;Density&#39;,xlab=&#39;y&#39;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/normplot-1.png" width="672" /></p>
+<p>But what if we wanted to look at the distribution of squared values? We can’t just replace <span class="math inline">\(x\)</span> in the density function with <span class="math inline">\(x^2\)</span>, because it would not integrate to 1 over its support. Let’s look at a plot of some hypothetical collected (and squared) data:</p>
+<pre class="r"><code>hist(rnorm(5000)^2)</code></pre>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/cubeplot-1.png" width="672" /></p>
+<p>Clearly, the transformed variable does not follow a normal distribution. The natural next step is to ask whether we can write down a formula for our new variable’s density function in closed form. To do this, there are numerous approaches we can take. We’ll go through them in increasing levels of sophistication.</p>
+</div>
+<div id="the-brute-force-method" class="section level3">
+<h3>The brute force method</h3>
+<p>As always, one of the first ways to go about deriving <span class="math inline">\(U\)</span>’s density is by brute force. By that, I mean:</p>
+<ol style="list-style-type: decimal">
+<li>Finding the region in <span class="math inline">\(y\)</span> space where <span class="math inline">\(U\)</span> has positive support<br />
+</li>
+<li>Integrating <span class="math inline">\(f_Y\)</span> over this region to back out <span class="math inline">\(F_U\)</span></li>
+<li>Differentiating <span class="math inline">\(F_U\)</span> to obtain <span class="math inline">\(f_u\)</span></li>
+<li>Never thinking once while doing all of the algebra in the steps above if there is an easier way to go about this</li>
+</ol>
+</div>
+<div id="the-method-of-transformations" class="section level3">
+<h3>The method of transformations</h3>
+<p>Imagine we have some random variable <span class="math inline">\(Y\)</span> with density function <span class="math inline">\(f_Y(y)\)</span>, and we define some new random variable <span class="math inline">\(U\)</span> as a function of <span class="math inline">\(Y\)</span>: <span class="math inline">\(U=h(Y)\)</span>. If this function is one-to-one, we can construct an inverse function that maps <span class="math inline">\(U\)</span> to <span class="math inline">\(Y\)</span>: <span class="math inline">\(Y=h^{-1}(U)\)</span>. In order to make any inferences about <span class="math inline">\(U\)</span>, we need its density function <span class="math inline">\(f_U(u)\)</span>. We can start by trying to derive its distribution function:
+<span class="math display">\[
+\begin{aligned}
+P(U\leq u) &amp;= P(h(Y)\leq u) \\
+&amp; = P(h^{-1}(h(Y)) \leq h^{-1}(u)) \\
+&amp;= P(Y \leq h^{-1}(u)) \\
+\Rightarrow F_U(u) &amp;= F_Y(h^{-1}(u))
+\end{aligned}
+\]</span>
+From here, we can get <span class="math inline">\(f_U(u)\)</span> by differentiating:
+<span class="math display">\[
+\begin{aligned}
+f_u(U) &amp;= \frac{d}{du} F_Y(h^{-1}(u)) \\
+&amp;= f_Y(h^{-1}(u)) \frac{d}{du}h^{-1}(u)
+\end{aligned}
+\]</span>
+One thing to note is that if <span class="math inline">\(Y\)</span> is a decreasing function of <span class="math inline">\(U\)</span> (we know <span class="math inline">\(h\)</span> and in turn <span class="math inline">\(h^{-1}\)</span> are either increasing or decreasing since we assume they’re one-to-one), then the above density function will be negative which is no good. So technically, we need to take the absolute value of this derivative, which gives us the most general expression:
+<span class="math display">\[
+f_U(u) = f_Y(h^{-1}(u)) \left| \frac{d}{du}h^{-1}(u) \right|
+\]</span></p>
+</div>
+</div>

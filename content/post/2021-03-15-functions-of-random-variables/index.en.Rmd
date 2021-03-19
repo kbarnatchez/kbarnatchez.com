@@ -1,0 +1,89 @@
+---
+title: Functions of random variables
+author: Keith Barnatchez
+date: '2021-03-15'
+slug: functions-of-random-variables
+categories:
+  - Statistics
+tags:
+  - statistics
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-03-15T16:09:13-04:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+I remember being told in my undergraduate statistical inference class that if you want to understand statistics, **you need to understand functions of random variables**. In a lot of ways, functions of random variables are the unsung heroes of statistical inference -- the forgotten middle man that produces all of the interesting output. To truly appreciate their importance, it helps to ask one of the most fundamental (and seemingly simple) questions in statistics.
+
+## What is a statistic?
+The word *statistic* is tossed around in conversation and writing countless times throughout the day. But there's a decent chance that if I were to ask you to give a precise definition of what a *statistic* is, .
+
+Not-so-formally, a statistic can just be described as a number that describes a sample of data. For instance, the average height of all American adults contacted by a survey company is a statistic, as is the share of respondents that are Republican in a sample of registered variables. This gets at the overall goal of statistics as a discipline: describing (potentially large) sets of data with easier-to-interpret numbers that can give us insight into some population of interest. 
+
+More precisely, given some set of data $X$ that has $n$ observations, a statistic is some function $T$ such that 
+$$
+T(X): \mathbb{R}^n \to \mathbb{R}^m,
+$$
+where $m \leq n$. In words, $T$ is a function that maps our set of data (a high-dimensional quantity) to a lower-dimensional quantity. This gets at the basic idea of statistics: to take some large set of information (data) and summarize it with a smaller set of numbers (statistics).
+
+In the most frequent and simple cases, $m=1$ and our statistic is just a number. An example would be the average height of a sample of $1000$ adults: in this case, $n=1000$, $m=1$ and $T(X)=\frac{1}{1000}\sum_{i=1}^{1000}x_i$. Pretty straightforward, right? Here's the kicker: **there are infinitely many ways to choose a function $T$, and most of those choices will suck.** In most (ideal) contexts, the data $X$ that we collect will be a collection of random variables, making our choice of statistic $T$ (drumroll) a function of random variables.
+
+The entire discipline of statistical inference is devoted to determining which statistics suck less than others, typically under varying circumstances related to the underlying data and how it was collected. At this point, it should (hopefully) be beginning to become clear that if we want to avoid using sucky statistics, we need to understand the more general idea of functions of random variables.
+
+### A motivating example
+
+Let's imagine we are interested in some variable $Y$ that we know to be (standard) normally distributed. This distribution is pretty well-understood -- for instance, we can easily plot its density function, and make reasonable guesses about its plausible range of values from repeated sampling:
+
+```{r normplot}
+x <- seq(-4, 4, length=1000)
+y <- dnorm(x, mean=0, sd=1)
+plot(x, y, type="l", lwd=1,ylab='Density',xlab='y')
+```
+
+But what if we wanted to look at the distribution of squared values? We can't just replace $x$ in the density function with $x^2$, because it would not integrate to 1 over its support. Let's look at a plot of some hypothetical collected (and squared) data: 
+
+```{r cubeplot}
+hist(rnorm(5000)^2)
+```
+
+Clearly, the transformed variable does not follow a normal distribution. The natural next step is to ask whether we can write down a formula for our new variable's density function in closed form. To do this, there are numerous approaches we can take. We'll go through them in increasing levels of sophistication.
+
+
+### The brute force method
+
+As always, one of the first ways to go about deriving $U$'s density is by brute force. By that, I mean:
+
+1. Finding the region in $y$ space where $U$ has positive support  
+2. Integrating $f_Y$ over this region to back out $F_U$
+3. Differentiating $F_U$ to obtain $f_u$
+4. Never thinking once while doing all of the algebra in the steps above if there is an easier way to go about this
+
+
+### The method of transformations
+
+Imagine we have some random variable $Y$ with density function $f_Y(y)$, and we define some new random variable $U$ as a function of $Y$: $U=h(Y)$. If this function is one-to-one, we can construct an inverse function that maps $U$ to $Y$: $Y=h^{-1}(U)$. In order to make any inferences about $U$, we need its density function $f_U(u)$. We can start by trying to derive its distribution function:
+$$
+\begin{aligned}
+P(U\leq u) &= P(h(Y)\leq u) \\
+& = P(h^{-1}(h(Y)) \leq h^{-1}(u)) \\
+&= P(Y \leq h^{-1}(u)) \\
+\Rightarrow F_U(u) &= F_Y(h^{-1}(u))
+\end{aligned}
+$$
+From here, we can get $f_U(u)$ by differentiating:
+$$
+\begin{aligned}
+f_u(U) &= \frac{d}{du} F_Y(h^{-1}(u)) \\
+&= f_Y(h^{-1}(u)) \frac{d}{du}h^{-1}(u)
+\end{aligned}
+$$
+One thing to note is that if $Y$ is a decreasing function of $U$ (we know $h$ and in turn $h^{-1}$ are either increasing or decreasing since we assume they're one-to-one), then the above density function will be negative which is no good. So technically, we need to take the absolute value of this derivative, which gives us the most general expression:
+$$
+f_U(u) = f_Y(h^{-1}(u)) \left| \frac{d}{du}h^{-1}(u) \right|
+$$

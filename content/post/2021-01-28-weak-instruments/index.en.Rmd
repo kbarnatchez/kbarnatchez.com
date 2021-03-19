@@ -220,8 +220,8 @@ Taking expectations again (and noting that the last term drops out since $Z$ and
 $$
 \begin{align}
 \mathbb{E}(\hat{\beta}) &= \beta + \mathbb{E}[(\hat{\gamma} Z' \hat{\gamma} Z)^{-1}\hat{\gamma} Z'X_2\alpha] \\ 
-&=\beta + \frac{ \alpha}{\hat{\gamma}} \mathbb{E}[(Z'Z)^{-1}Z'X_2 ] \\
-&= \beta + \frac{ \alpha \delta}{\hat{\gamma}}
+&=\beta + \frac{ \alpha}{\gamma} \mathbb{E}[(Z'Z)^{-1}Z'X_2 ] \\
+&= \beta + \frac{ \alpha \delta}{\gamma}
 \end{align}
 $$
 where I let $\delta=\mathbb{E}[(Z'Z)^{-1}Z'X_2 ]$. Given our assumption that $\text{corr}(X_2,Z)=0$, $\delta=0$ and the final term drops out. 
