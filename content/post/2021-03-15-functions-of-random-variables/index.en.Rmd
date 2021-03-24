@@ -87,3 +87,7 @@ One thing to note is that if $Y$ is a decreasing function of $U$ (we know $h$ an
 $$
 f_U(u) = f_Y(h^{-1}(u)) \left| \frac{d}{du}h^{-1}(u) \right|
 $$
+
+### The method of moment-generating functions
+
+### The method of transformations (multivariate version)

@@ -1,0 +1,110 @@
+---
+title: Moment Generating Functions
+author: Keith Barnatchez
+date: '2021-03-24'
+slug: moment-generating-functions
+categories:
+  - Statistics
+tags:
+  - statistics
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-03-24T11:39:24-04:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+
+<p>For this post, I’ll assume you have a basic understanding of probability distributions and their moments. If you want a really good overview of <em>moments</em>, I highly recommend <a href="https://gregorygundersen.com/blog/2020/04/11/moments/">this post</a> by Gregory Gundersen.</p>
+<div id="what-is-a-moment-generating-function" class="section level2">
+<h2>What is a moment-generating function?</h2>
+<p>We’ll start with the general definition. Given a random variable <span class="math inline">\(Y\)</span>, its associated moment-generating function <span class="math inline">\(m_Y\)</span> is defined such that
+<span class="math display">\[
+m_Y(t) = \mathbb{E}(e^{tY})
+\]</span>
+And <strong>what do they do?</strong> This may be a bit shocking, but we tend to use moment-generating functions to <em>generate the moments</em> of a random variable – any moment that we want! Just from looking at the definition, it isn’t super clear how the above expectation allows us to obtain any desired moment. To make this clearer, we have to do a bit of work.</p>
+<p>You may remember that the Taylor Series expansion of <span class="math inline">\(e^{ty}\)</span> is given by
+<span class="math display">\[
+e^{ty} = 1 + \frac{ty}{1!} + \frac{(ty)^3}{3!} + \frac{(ty)^2}{2!} + \cdots
+\]</span>
+Writing out our earlier expectation, we obtain
+<span class="math display">\[
+\begin{aligned}
+\mathbb{E}(e^{tY}) &amp;= \sum_y \left(1 + \frac{ty}{1!} + \frac{(ty)^3}{3!} + \frac{(ty)^2}{2!} + \cdots\right) p(y) \\
+&amp;= \sum_y p(y) + \sum_y p(y)\frac{ty}{1!} + \sum_y p(y)\frac{(ty)^2}{2!} + \sum_y p(y)\frac{(ty)^3}{3!} + \cdots \\
+&amp;= \sum_y p(y) + t\sum_y p(y)y + \frac{t^2}{2!}\sum_y p(y)y^2 + \frac{t^3}{3!}\sum_y p(y)y^3 + \cdots \\
+&amp;= 1 + t \mathbb{E}(Y) +  \frac{t^2}{2!} \mathbb{E}(Y^2) + \frac{t^3}{3!} \mathbb{E}(Y^3) + \cdots
+\end{aligned}
+\]</span>
+Recall that the <span class="math inline">\(k\)</span>-th <em>uncentered moment</em> of a random variable <span class="math inline">\(Y\)</span>, also called the <span class="math inline">\(k\)</span>-th moment about the origin, is given by <span class="math inline">\(\mathbb{E}(Y^k)\)</span>. Okay, so we can see these terms appearing in the infinite sum, but they still have these <span class="math inline">\(t\)</span>’s and factorials attached to them. So how do we make the final jump that allows us to obtain these moments?</p>
+<p>Notice that
+<span class="math display">\[
+\begin{aligned}
+\frac{d}{dt} \mathbb{E}(e^{tY}) \bigg\rvert_{t=0} &amp;= \left(0 + \mathbb{E}(Y)  + t \mathbb{E}(Y^2) + \frac{t^2}{2!}\mathbb{E}(Y^3) + \cdots\right)\bigg\rvert_{t=0} \\
+&amp;= 0 + \mathbb{E(Y)} + 0 + 0 + \cdots \\
+&amp;= \mathbb{E}(Y)
+\end{aligned}
+\]</span>
+and
+<span class="math display">\[
+\begin{aligned}
+\frac{d^2}{dt^2} \mathbb{E}(e^{tY}) \bigg\rvert_{t=0} &amp;= \left(0 + 0  + \mathbb{E}(Y^2) + t\mathbb{E}(Y^3) + \cdots\right)\bigg\rvert_{t=0} \\
+&amp;= 0 + 0 + \mathbb{E(Y^2)} + 0 + \cdots \\
+&amp;= \mathbb{E}(Y^2)
+\end{aligned}
+\]</span>
+and
+<span class="math display">\[
+\begin{aligned}
+\frac{d^3}{dt^3} \mathbb{E}(e^{tY}) \bigg\rvert_{t=0} &amp;= \left(0 + 0  + 0 + t\mathbb{E}(Y^3) + \cdots\right)\bigg\rvert_{t=0} \\
+&amp;= 0 + 0 + 0 + \mathbb{E(Y^3)} + 0 + \cdots \\
+&amp;= \mathbb{E}(Y^3)
+\end{aligned}
+\]</span>
+and from here, the pattern is pretty clear: if we take the <span class="math inline">\(k-th\)</span> derivative of <span class="math inline">\(\mathbb{E}(e^{tY})\)</span> and evaluate it at 0, we obtain <span class="math inline">\(Y\)</span>’s <span class="math inline">\(k-th\)</span> uncentered moment. We can obtain <em>centered</em> moments using the same approach pretty easily: just obtain the first uncentered moment <span class="math inline">\(E(Y)=\mu_Y\)</span>, then define <span class="math inline">\(Z=Y-\mu_Y\)</span> and calculate the <em>uncentered</em> moments of <span class="math inline">\(Z\)</span> (which are really centered since <span class="math inline">\(\mathbb{E}(Z) = \mathbb{E}(Y) - \mu_Y = 0\)</span>) via its MGF.</p>
+</div>
+<div id="why-should-we-care" class="section level2">
+<h2>Why should we care?</h2>
+<p>There are a couple instances where moment-generating functions can be super useful:</p>
+<ol style="list-style-type: decimal">
+<li>Proving a random variable follows some distribution</li>
+<li>Deriving the density function of a function of another variable whose moment-generating function is known</li>
+</ol>
+<p>We can work through an example where moment-generating functions make our lives easier. Suppose <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span> are independent Poisson random variables with rates <span class="math inline">\(\lambda_1\)</span> and <span class="math inline">\(\lambda_2\)</span>, and that we’re asked to 1) find the density function of <span class="math inline">\(Y_1 + Y_2\)</span>, and 2) find its expected value and variance. It turns out, moment-generating functions are often great choices finding the distributions of sums of independent random variables.</p>
+<p>Since <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span> are independent, we know that
+<span class="math display">\[
+\begin{aligned}
+\mathbb{E}(e^{t(Y_1+Y_2)}) &amp;= \mathbb{E}(e^{tY_1}) \mathbb{E}(e^{tY_2}) \\
+&amp;= m_{Y_1}(t) \times m_{Y_2}(t)
+\end{aligned}
+\]</span>
+For now, we can be lazy and use the fact that the MGF for a Poisson random variable is <span class="math inline">\(e^{\lambda(e^t-\lambda)}\)</span>, though this isn’t so hard to derive ourselves. Thus,
+<span class="math display">\[
+\begin{aligned}
+m_{Y_1+Y_2}(t) &amp;= e^{\lambda_1(e^t-\lambda_1)} e^{\lambda_2(e^t-\lambda_2)} \\
+&amp;= e^{(\lambda_1+\lambda_2)(e^t - (\lambda_1+\lambda_2))}
+\end{aligned}
+\]</span>
+We can see that this is just the MGF for a Poisson random variable with rate <span class="math inline">\(\lambda_1+\lambda_2\)</span> – thus, the sum of two Poisson random variables is also a Poisson random variable with rate equal to the sum of the individual rates:
+<span class="math display">\[
+f_{Y_1+Y_2}(y) = \frac{(\lambda_1+\lambda_2)^y e^{-(\lambda_1+\lambda_2)}  }{y!}
+\]</span>
+Now,
+<span class="math display">\[
+m_{Y_1+Y_2}^{(1)}(0)= \lambda_1+\lambda_2 
+\]</span>
+and
+<span class="math display">\[
+m_{Y_1+Y_2}^{(2)}(0)= (\lambda_1+\lambda_2)^2 +  \lambda_1+\lambda_2 
+\]</span>
+so that <span class="math inline">\(\mathbb{E}(Y_1+Y_2)=\lambda_1+\lambda_2\)</span> and
+<span class="math display">\[
+\mathbb{V}(Y_1+Y_2)= (\lambda_1+\lambda_2)^2 +  \lambda_1+\lambda_2 -  (\lambda_1+\lambda_2)^2 =  \lambda_1+\lambda_2
+\]</span></p>
+</div>
