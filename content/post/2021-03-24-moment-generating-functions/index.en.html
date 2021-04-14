@@ -1,5 +1,5 @@
 ---
-title: Moment Generating Functions
+title: Moment-Generating Functions
 author: Keith Barnatchez
 date: '2021-03-24'
 slug: moment-generating-functions
@@ -68,6 +68,14 @@ and
 \end{aligned}
 \]</span>
 and from here, the pattern is pretty clear: if we take the <span class="math inline">\(k-th\)</span> derivative of <span class="math inline">\(\mathbb{E}(e^{tY})\)</span> and evaluate it at 0, we obtain <span class="math inline">\(Y\)</span>’s <span class="math inline">\(k-th\)</span> uncentered moment. We can obtain <em>centered</em> moments using the same approach pretty easily: just obtain the first uncentered moment <span class="math inline">\(E(Y)=\mu_Y\)</span>, then define <span class="math inline">\(Z=Y-\mu_Y\)</span> and calculate the <em>uncentered</em> moments of <span class="math inline">\(Z\)</span> (which are really centered since <span class="math inline">\(\mathbb{E}(Z) = \mathbb{E}(Y) - \mu_Y = 0\)</span>) via its MGF.</p>
+<div id="the-uniqueness-of-moment-generating-functions" class="section level3">
+<h3>The uniqueness of moment-generating functions</h3>
+<p>The main appeal from moment-generating functions comes from the following result:</p>
+<blockquote>
+<p><em>If <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span> are such that <span class="math inline">\(m_{Y_1}(t) = m_{Y_2}(t)\)</span> for some region around <span class="math inline">\(t=0\)</span>, then <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span> follow the same distribution.</em></p>
+</blockquote>
+<p>This makes sense when we think about it (though it’s not so easy to prove). We know that a distribution is uniquely characterized by its moments: if we can quantify its center, spread, and the relative thickness of its tails, then we know everything there is to know about that distribution. Thus, two variables have the same moment-generating functions, then they have the same moments and have to follow the same distribution.</p>
+</div>
 </div>
 <div id="why-should-we-care" class="section level2">
 <h2>Why should we care?</h2>

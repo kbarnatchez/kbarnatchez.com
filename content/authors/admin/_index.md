@@ -25,7 +25,7 @@ interests:
 social:
 - icon: envelope
   icon_pack: fas
-  link: /#contact
+  link: mailto:keithbarnatchez@g.harvard.edu
 #- icon: twitter
 #  icon_pack: fab
 #  link: https://twitter.com/GeorgeCushen
@@ -42,6 +42,6 @@ superuser: true
 title: Keith Barnatchez
 ---
 
-I’m currently a research assistant at the Federal Reserve Bank of Boston. I plan on applying to biostatistics PhD programs for the 2021 academic year. My research interests include Bayesian applications to clinical trial and dynamic treatment designs, spatial statistics and causal inference.
+I’m currently a research assistant at the Federal Reserve Bank of Boston. This fall, I'll be starting a PhD program in biostatistics at Harvard University. My research interests include Bayesian applications to clinical trial and dynamic treatment designs, spatial statistics and causal inference.
 
-I really value the clear communication of statistical concepts and results. I maintain a blog covering various topics in biostatistics and economics – some of my favorite posts include:
+I  value the clear communication of statistical concepts and results, and  (when motivated) occasionally [write about](https://keithbarnatchez.netlify.app/post/) various topics in biostatistics and economics. 

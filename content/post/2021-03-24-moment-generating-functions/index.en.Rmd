@@ -1,5 +1,5 @@
 ---
-title: Moment Generating Functions
+title: Moment-Generating Functions
 author: Keith Barnatchez
 date: '2021-03-24'
 slug: moment-generating-functions
@@ -69,6 +69,14 @@ $$
 \end{aligned}
 $$
 and from here, the pattern is pretty clear: if we take the $k-th$ derivative of $\mathbb{E}(e^{tY})$ and evaluate it at 0, we obtain $Y$'s $k-th$ uncentered moment. We can obtain *centered* moments using the same approach pretty easily: just obtain the first uncentered moment $E(Y)=\mu_Y$, then define $Z=Y-\mu_Y$ and calculate the *uncentered* moments of $Z$ (which are really centered since $\mathbb{E}(Z) = \mathbb{E}(Y) - \mu_Y = 0$) via its MGF. 
+
+### The uniqueness of moment-generating functions
+
+The main appeal from moment-generating functions comes from the following result:
+
+> *If $Y_1$ and $Y_2$ are such that $m_{Y_1}(t) = m_{Y_2}(t)$ for some region around $t=0$, then $Y_1$ and $Y_2$ follow the same distribution.*
+
+This makes sense when we think about it (though it's not so easy to prove). We know that a distribution is uniquely characterized by its moments: if we can quantify its center, spread, and the relative thickness of its tails, then we know everything there is to know about that distribution. Thus, two variables have the same moment-generating functions, then they have the same moments and have to follow the same distribution. 
 
 ## Why should we care?
  
