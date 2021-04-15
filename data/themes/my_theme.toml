@@ -4,8 +4,8 @@ name = "Minimal"
 # Is theme light or dark?
 light = true
 
-# Primary
-primary = "#E91919"
+# Primary (also try E91919)
+primary = "#CD1717"
 
 # Menu
 menu_primary = "#fff"
