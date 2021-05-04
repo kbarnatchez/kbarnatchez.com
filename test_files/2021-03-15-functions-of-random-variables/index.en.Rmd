@@ -79,7 +79,7 @@ $$
 From here, we can get $f_U(u)$ by differentiating:
 $$
 \begin{aligned}
-f_u(U) &= \frac{d}{du} F_Y(h^{-1}(u)) \\
+f_U(u) &= \frac{d}{du} F_Y(h^{-1}(u)) \\
 &= f_Y(h^{-1}(u)) \frac{d}{du}h^{-1}(u)
 \end{aligned}
 $$

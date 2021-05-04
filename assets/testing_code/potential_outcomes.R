@@ -1,5 +1,5 @@
 N <- 1e2
-size<-0.6
+size<-0.9
 var <- 0.3
 E <- 5e3
 
@@ -55,4 +55,4 @@ ggplot(plot_data, aes(x=N,y=Estimate,group=Method,color=Method)) + geom_line(siz
        title='Average treatment effects are unbiased but less efficient',
        subtitle='Results for treatment effect with strong signal') +
   theme_bw() +
-  theme(plot.title = element_text(face = "bold")) 
+  theme(plot.title = element_text(face = "bold"), legend.position = c(0.8, 0.2))
