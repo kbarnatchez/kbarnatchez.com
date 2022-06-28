@@ -42,6 +42,6 @@ superuser: true
 title: Keith Barnatchez
 ---
 
-I’m currently a research assistant at the Federal Reserve Bank of Boston. This fall, I'll be starting a PhD program in biostatistics at Harvard University. My research interests include Bayesian applications to clinical trial and dynamic treatment designs, spatial statistics and causal inference.
+I'm a second year biostatistics PhD student at the Harvard T.H. Chan School of Public Health and a student researcher at Massachusetts General Hopsital. I'm interested in 1) developing statistical methods that address common challenges in causal inference, and 2) developing decision-support tools for clinicians. 
 
 I  value the clear communication of statistical concepts and results, and  (when motivated) occasionally [write about](https://keithbarnatchez.netlify.app/post/) various topics in biostatistics and economics. 
